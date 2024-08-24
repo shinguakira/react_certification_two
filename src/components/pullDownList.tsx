@@ -1,6 +1,6 @@
 import { Questions } from '../interface/apiResponse';
 
-const PullDownList = (options: Questions[]) => {
+const PullDownList: React.FC<Questions[]> = ({options}) => {
   return (
     <>
       <label>taitle</label>
