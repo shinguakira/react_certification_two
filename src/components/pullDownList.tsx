@@ -5,7 +5,7 @@ const PullDownList: React.FC<Questions[]> = ({options}) => {
     <>
       <label>taitle</label>
       <select>
-        <option>select options</option>
+        <option>select categories</option>
         {options.map((option) => (
           <option key={option.id} value={option.name}>
             {option.name}

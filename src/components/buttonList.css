@@ -1,0 +1,16 @@
+.option-button {
+    padding: 10px;
+    margin: 5px;
+    border: 1px solid #ccc;
+    background-color: white;
+    cursor: pointer;
+}
+
+.option-button.selected {
+    background-color: #4caf50;
+    color: white;
+}
+
+.option-button:hover {
+    background-color: #e0e0e0;
+}

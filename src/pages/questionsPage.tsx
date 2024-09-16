@@ -2,13 +2,30 @@ import { useEffect, useState } from 'react';
 import '../App.css';
 import PullDownList from '../components/pullDownList';
 import { ApiResponse, Questions } from '../interface/apiResponse';
+import { difficality, questionsContent } from '../constants/constants';
+import { QuestionsInfo, questionsApiResponse } from '../interface/questionsApiResponse';
+import axios from 'axios';
+import ButtonList from '../components/buttonList';
+import {shuffle,toArray} from 'lodash';
 
 const QuestionsPage: React.FC = () => {
   const [count, setCount] = useState(0);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [questionList, setQuestionList] = useState<Questions[]>([]);
+  const [categoryList, setCategoryList] = useState<Questions[]>([]);
+  const [questionList, setQuestionList] = useState<QuestionsInfo[]>([]);
+  const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+  // State to store selected answers for each question
+  const [selectedAnswer, setSelectedAnswer] = useState<{ [key: string]: string }>({});
+  
+  // Handler for selecting an answer
+  const handleSelect = (questionId: string, answer: string) => {
+    setSelectedAnswer((prev) => ({
+      ...prev,
+      [questionId]: answer,
+    }));
+  }
 
   useEffect(() => {
     fetch('https://opentdb.com/api_category.php')
@@ -23,45 +40,79 @@ const QuestionsPage: React.FC = () => {
         setLoading(false);
         const a: ApiResponse = Object.values(data);
         if (Array.isArray(a)) {
-          setQuestionList(a[0]);
+          setCategoryList(a[0]);
         }
-        console.log(Array.isArray(a));
-        console.log(a);
       })
       .catch((error) => {
         setError(error);
         setLoading(false);
       });
+    //fetching questions
+
+
+    // const result=fetch('https://opentdb.com/api.php?amount=5&category=11&difficulty=easy&type=multiple')
+    // .then((response) => {
+    //   console.log("fail");
+    //   console.log(response)
+    //   if (!response.ok) {
+    //     throw new Error('Network');
+    //   }
+    // })
+    // .then((data) => {
+    //   const a: questionsApiResponse = Object.values(data);
+    //   if (Array.isArray(a)) {
+    //     setQuestionList(a);
+    //   }
+    //   console.log(Array.isArray(a));
+    //   console.log(a);
+    // })
+    // .catch((error) => {
+    //   setError(error);
+    //   setLoading(false);
+    // });
   }, []);
   return (
     <>
       <label>taitle</label>
-      <PullDownList options={questionList} />
+      <PullDownList options={categoryList} />
       <select>
         <option>select options</option>
-        {questionList.map((option) => (
-          <option key={option.id} value={option.name}>
-            {option.name}
+        {difficality.map((option) => (
+          <option key={option.key} value={option.value}>
+            {option.value}
           </option>
         ))}
       </select>
-      {/* <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <button>Create</button>
+      {questionList.map((option) => (
+        <label>{option.category}</label>
+      ))}
+
+
+      <div className="quiz-container">
+        {questionsContent.map((question) => (
+          <div key={question.question} className="question-block">
+            <h3>{question.question}</h3>
+            <div className="options">
+              {question.incorrect_answers.map((option) => (
+                <button
+                  key={option}
+                >
+                  {option}
+                </button>
+              ))}
+              <button key="1">
+                {question.correct_answer}
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div> */}
+      <div className="quiz-container">
+        {questionsContent.map((question) => (
+          <ButtonList items={Array.from(shuffle<string>([question.correct_answer, ...question.incorrect_answers])) as string[]  }></ButtonList>
+        ))}
+      </div>
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
