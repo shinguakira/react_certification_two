@@ -4,7 +4,6 @@ import PullDownList from '../components/pullDownList';
 import { ApiResponse, Questions } from '../interface/apiResponse';
 import { difficality, questionsContent } from '../constants/constants';
 import { QuestionsInfo, questionsApiResponse } from '../interface/questionsApiResponse';
-import axios from 'axios';
 import ButtonList from '../components/buttonList';
 import {shuffle,toArray} from 'lodash';
 
@@ -16,16 +15,7 @@ const QuestionsPage: React.FC = () => {
   const [categoryList, setCategoryList] = useState<Questions[]>([]);
   const [questionList, setQuestionList] = useState<QuestionsInfo[]>([]);
   const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-  // State to store selected answers for each question
-  const [selectedAnswer, setSelectedAnswer] = useState<{ [key: string]: string }>({});
   
-  // Handler for selecting an answer
-  const handleSelect = (questionId: string, answer: string) => {
-    setSelectedAnswer((prev) => ({
-      ...prev,
-      [questionId]: answer,
-    }));
-  }
 
   useEffect(() => {
     fetch('https://opentdb.com/api_category.php')
@@ -38,9 +28,9 @@ const QuestionsPage: React.FC = () => {
       .then((data) => {
         setData(data);
         setLoading(false);
-        const a: ApiResponse = Object.values(data);
-        if (Array.isArray(a)) {
-          setCategoryList(a[0]);
+        const categoryList: ApiResponse = data as ApiResponse;
+        if (Array.isArray(categoryList)) {
+          setCategoryList(categoryList[0]);
         }
       })
       .catch((error) => {
@@ -74,7 +64,7 @@ const QuestionsPage: React.FC = () => {
   return (
     <>
       <label>taitle</label>
-      <PullDownList options={categoryList} />
+      <PullDownList options={categoryList.map((category)=>category.name)} />
       <select>
         <option>select options</option>
         {difficality.map((option) => (
@@ -89,25 +79,7 @@ const QuestionsPage: React.FC = () => {
       ))}
 
 
-      <div className="quiz-container">
-        {questionsContent.map((question) => (
-          <div key={question.question} className="question-block">
-            <h3>{question.question}</h3>
-            <div className="options">
-              {question.incorrect_answers.map((option) => (
-                <button
-                  key={option}
-                >
-                  {option}
-                </button>
-              ))}
-              <button key="1">
-                {question.correct_answer}
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+      
       <div className="quiz-container">
         {questionsContent.map((question) => (
           <ButtonList items={Array.from(shuffle<string>([question.correct_answer, ...question.incorrect_answers])) as string[]  }></ButtonList>
